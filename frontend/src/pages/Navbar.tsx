@@ -5,20 +5,12 @@ import { PiBrain } from 'react-icons/pi';
 import { HiOutlineChartBar, HiOutlineMenu, HiOutlineSearch, HiOutlineX } from 'react-icons/hi';
 import { RiUser3Line } from 'react-icons/ri';
 import { HiOutlineArrowRightOnRectangle, HiOutlineChatBubbleLeftRight, HiOutlineSquares2X2 } from 'react-icons/hi2';
+import { useAuth } from '../auth/AuthProvider';
 
-type User = {
-  email: string;
-  name?: string | null;
-};
-
-type NavProps = {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-};
-
-const Navbar = ( {user, setUser}: NavProps ) => {
+const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, setUser } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
