@@ -78,7 +78,7 @@ router.post('/login', async (req, res) => {
 
 // my info
 router.get('/profile', protect, async (req, res) => {
-  res.json(req.user);
+  res.json({ user: req.user });
 })
 
 // logout

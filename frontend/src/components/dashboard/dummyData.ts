@@ -1,0 +1,95 @@
+import type { DashboardData } from './types/dashboardTypes'
+
+export const dashboardMock: DashboardData = {
+  header: {
+    title: "Neura",
+    subtitle: "Your second brain at a glance",
+  },
+  stats: [
+    { id: "total-notes", label: "Total Notes", value: 9, sub: "↑ 12% from last week", iconKey: "notes" },
+    { id: "voice-notes", label: "Voice Notes", value: 4, iconKey: "voice" },
+    { id: "words", label: "Words Captured", value: 400, iconKey: "words" },
+    { id: "ai", label: "AI Processed", value: 7, sub: "78% complete", iconKey: "ai" },
+  ],
+  activity: {
+      changeText: "+12%",
+      data: [0, 1, 2, 1, 3, 2, 4, 3, 2, 3, 4, 5, 4, 6],
+      labels: [
+        "Feb 1", "Feb 2", "Feb 3", "Feb 4",
+        "Feb 5", "Feb 6", "Feb 7", "Feb 8",
+        "Feb 9", "Feb 10", "Feb 11", "Feb 12",
+        "Feb 13", "Feb 14"
+      ]
+    },
+  topics: [
+    { label: "productivity", count: 2, color: "emerald" },
+    { label: "documentation", count: 2, color: "sky" },
+    { label: "teamwork", count: 1, color: "slate" },
+    { label: "meetings", count: 1, color: "violet" },
+    { label: "machine-learning", count: 1, color: "rose" },
+    { label: "neural-networks", count: 1, color: "amber" },
+    { label: "coursework", count: 1, color: "violet" },
+    { label: "tensorflow", count: 1, color: "sky" },
+    { label: "books", count: 1, color: "emerald" },
+    { label: "habits", count: 1, color: "amber" },
+    { label: "self-improvement", count: 1, color: "rose" },
+    { label: "architecture", count: 1, color: "slate" },
+  ],
+  notes: [
+    {
+      id: "n1",
+      status: "Queued",
+      title: "Processing...",
+      description: "Audio is being transcribed and summarized.",
+      date: "Feb 15, 2026",
+      iconKey: "voice",
+    },
+    {
+      id: "n2",
+      status: "Completed",
+      title: "Ideas for improving team productivity",
+      description: "Discussion of three main productivity improvements: async standups, centralized documentation in Notion, ...",
+      date: "Feb 15, 2026",
+      meta: "78 words",
+      tags: ["productivity", "teamwork", "meetings"],
+      iconKey: "brain",
+    },
+    {
+      id: "n3",
+      status: "Completed",
+      title: "Machine Learning course notes - Week 3",
+      description: "Week 3 ML course covering neural network basics including forward/back propagation, activation...",
+      date: "Feb 15, 2026",
+      meta: "52 words",
+      tags: ["machine-learning", "neural-networks", "coursework"],
+      iconKey: "doc",
+    },
+    {
+      id: "n4",
+      status: "Completed",
+      title: "Book notes: Atomic Habits",
+      description: "Key takeaways from Atomic Habits focusing on compound effects of small improvements and the habit...",
+      date: "Feb 15, 2026",
+      meta: "67 words",
+      tags: ["books", "habits", "self-improvement"],
+    },
+    {
+      id: "n5",
+      status: "Completed",
+      title: "Quick thought on project architecture",
+      description: "Architecture decision leaning towards microservices for new project due to distributed team structure. API...",
+      date: "Feb 15, 2026",
+      meta: "42 words",
+      tags: ["architecture", "microservices", "project-planning"],
+    },
+    {
+      id: "n6",
+      status: "Completed",
+      title: "Meeting notes: Q4 planning",
+      description: "Q4 planning meeting outcomes: v2.0 launch mid-October, 20% churn reduction goal, hiring 2 senior...",
+      date: "Feb 15, 2026",
+      meta: "51 words",
+      tags: ["planning", "q4", "product-launch", "product-launch"],
+    },
+  ],
+};

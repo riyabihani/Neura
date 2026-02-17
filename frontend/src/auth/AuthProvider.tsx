@@ -1,5 +1,5 @@
 import React, { createContext, type ReactNode, useState, useEffect, useContext } from 'react'
-import type { User } from '../types/auth';
+import type { User } from './types/authTypes';
 import axios from 'axios';
 
 // ensure cookies are sent
@@ -17,7 +17,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 type AuthProviderProps = {
   children: ReactNode;
-}
+};
+
+type ProfileResponse = { user: User };
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
@@ -26,8 +28,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get<User>("http://localhost:5000/api/auth/profile");
-        setUser(res.data)
+        const res = await axios.get<ProfileResponse>("http://localhost:5000/api/auth/profile");
+        setUser(res.data.user)
       } catch (error) {
         setUser(null);
       } finally {

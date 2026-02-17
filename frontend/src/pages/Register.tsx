@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { HiOutlineLockClosed, HiOutlineMail, HiOutlineUser } from 'react-icons/hi';
 import { PiBrain } from 'react-icons/pi';
 import AuthLeftPanel from '../components/layout/AuthLeftPanel';
-import type { User } from '../types/auth';
+import type { User } from '../auth/types/authTypes';
 
 type RegisterProps = {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
