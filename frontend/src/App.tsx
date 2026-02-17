@@ -40,11 +40,11 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Navbar user={user} setUser={setUser} />
+      {user && (<Navbar user={user} setUser={setUser} />)}
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route path="/register" element={<Register setUser={setUser} />} />
+          <Route path="/" element={user ? <Dashboard /> : <Navigate to="/login" replace />} />
+          <Route path="/login" element={!user ? <Login setUser={setUser} /> : <Navigate to="/" replace />} />
+          <Route path="/register" element={!user ? <Register setUser={setUser} /> : <Navigate to="/" replace />} />
         </Routes> 
     </BrowserRouter>
   );
