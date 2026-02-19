@@ -8,7 +8,8 @@ type AddNoteProps = {
 
 const AddNote = ({ open, onClose }: AddNoteProps) => {
   const [mode, setMode] = useState<"text" | "voice">("text");
-  const [text, setText] = useState("")
+  const [text, setText] = useState("");
+  const [transcript, setTranscript] = useState("");
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -34,7 +35,7 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
       <div onClick={onClose} className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
       {/* modal */}
-      <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-xl p-6 animate-fadeIn">
+      <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-xl p-10 animate-fadeIn max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-900">Capture a thought</h2>
           <button onClick={onClose}>
@@ -56,11 +57,25 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
           {mode === "text" ? (
             <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="What's on your mind?" className='w-full h-40 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500'></textarea>
           ) : (
-            <div className="flex flex-col items-center justify-center h-40">
+            <div className="flex flex-col items-center justify-center">
               <button className="h-20 w-20 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-lg hover:scale-105 transition">
                 <HiOutlineMicrophone className='text-3xl' />
               </button>
               <p className="mt-3 text-sm text-slate-500">Tap to start recording</p>
+
+              <div className="mt-6 w-full">
+                <label className="block text-xs font-medium text-slate-600 mb-2">
+                  Transcript (editable)
+                </label>
+
+                <textarea
+                  value={transcript}
+                  onChange={(e) => setTranscript(e.target.value)}
+                  placeholder="Your spoken words will appear here..."
+                  className="w-full h-32 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+            </div>
+
             </div>
           )}
         </div>
