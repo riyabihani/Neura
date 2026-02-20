@@ -6,9 +6,11 @@ import { PiBrain } from "react-icons/pi";
 import { HiOutlineBolt } from "react-icons/hi2";
 import NotesActivityGraph from "../components/dashboard/layout/NotesActivityGraph";
 import TopTopics from "../components/dashboard/layout/TopTopics";
-import NoteCard from "../components/dashboard/layout/NoteCard";
+import NoteCard from "../components/notes/layout/NoteCard";
 import { useState } from "react";
 import AddNote from "../components/common/AddNote";
+import { NOTES_MOCK } from "../components/notes/notesDummyData";
+import NoteGrid from "../components/notes/layout/NoteGrid";
 
 function statIcon(iconKey: StatItem["iconKey"]) {
   switch(iconKey) {
@@ -41,6 +43,8 @@ function noteIcon(iconKey?: NoteItem["iconKey"]) {
 const Dashboard = () => {
   const data = dashboardMock;
   const [open, setOpen] = useState(false);
+  const notes = NOTES_MOCK;
+  const recent = notes.slice(0, 6)
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -56,10 +60,11 @@ const Dashboard = () => {
         {/* Recent Notes */}
         <div className="mt-8">
           <h2 className="text-base font-semibold text-slate-900">Recent Notes</h2>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-            {data.notes.map((n) => (
-              <NoteCard key={n.id} status={n.status} title={n.title} description={n.description} date={n.date} meta={n.meta} tags={n.tags} icon={noteIcon(n.iconKey)} />
-            ))}
+          <div className="mt-4">
+            {/* {notes.map((n) => (
+              <NoteCard key={n.id} note={n} />
+            ))} */}
+            <NoteGrid notes={recent} />
           </div>
         </div>
 

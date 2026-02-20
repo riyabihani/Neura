@@ -14,7 +14,7 @@ export type Topic = {
   color?: StatColors;
 };
 
-export type NoteStatus = "Queued" | "Completed";
+export type NoteStatus = "Queued" | "Processing" | "Completed";
 
 export type NoteItem = {
   id: string;

@@ -1,4 +1,5 @@
 import type { DashboardData } from './types/dashboardTypes'
+import { NOTES_MOCK } from '../notes/notesDummyData';
 
 export const dashboardMock: DashboardData = {
   header: {
@@ -35,61 +36,14 @@ export const dashboardMock: DashboardData = {
     { label: "self-improvement", count: 1, color: "rose" },
     { label: "architecture", count: 1, color: "slate" },
   ],
-  notes: [
-    {
-      id: "n1",
-      status: "Queued",
-      title: "Processing...",
-      description: "Audio is being transcribed and summarized.",
-      date: "Feb 15, 2026",
-      iconKey: "voice",
-    },
-    {
-      id: "n2",
-      status: "Completed",
-      title: "Ideas for improving team productivity",
-      description: "Discussion of three main productivity improvements: async standups, centralized documentation in Notion, ...",
-      date: "Feb 15, 2026",
-      meta: "78 words",
-      tags: ["productivity", "teamwork", "meetings"],
-      iconKey: "brain",
-    },
-    {
-      id: "n3",
-      status: "Completed",
-      title: "Machine Learning course notes - Week 3",
-      description: "Week 3 ML course covering neural network basics including forward/back propagation, activation...",
-      date: "Feb 15, 2026",
-      meta: "52 words",
-      tags: ["machine-learning", "neural-networks", "coursework"],
-      iconKey: "doc",
-    },
-    {
-      id: "n4",
-      status: "Completed",
-      title: "Book notes: Atomic Habits",
-      description: "Key takeaways from Atomic Habits focusing on compound effects of small improvements and the habit...",
-      date: "Feb 15, 2026",
-      meta: "67 words",
-      tags: ["books", "habits", "self-improvement"],
-    },
-    {
-      id: "n5",
-      status: "Completed",
-      title: "Quick thought on project architecture",
-      description: "Architecture decision leaning towards microservices for new project due to distributed team structure. API...",
-      date: "Feb 15, 2026",
-      meta: "42 words",
-      tags: ["architecture", "microservices", "project-planning"],
-    },
-    {
-      id: "n6",
-      status: "Completed",
-      title: "Meeting notes: Q4 planning",
-      description: "Q4 planning meeting outcomes: v2.0 launch mid-October, 20% churn reduction goal, hiring 2 senior...",
-      date: "Feb 15, 2026",
-      meta: "51 words",
-      tags: ["planning", "q4", "product-launch", "product-launch"],
-    },
-  ],
+  notes: NOTES_MOCK.slice(0, 8).map(note => ({
+    id: note.id,
+    status: note.status,
+    title: note.title,
+    description: note.description,
+    date: note.dateLabel,
+    meta: note.words ? `${note.words} words` : undefined,
+    tags: note.tags,
+    iconKey: note.kind === "voice" ? "voice" : "doc",
+  })),
 };
