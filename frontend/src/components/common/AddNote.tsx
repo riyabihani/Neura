@@ -8,6 +8,7 @@ type AddNoteProps = {
 
 const AddNote = ({ open, onClose }: AddNoteProps) => {
   const [mode, setMode] = useState<"text" | "voice">("text");
+  const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [transcript, setTranscript] = useState("");
 
@@ -41,6 +42,11 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
           <button onClick={onClose}>
             <HiOutlineX className="text-xl text-slate-500" />
           </button>
+        </div>
+
+        <div className="mt-5">
+          <label className="block text-xs font-medium text-slate-600 mb-2">Title</label>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder='Give it a title...' className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500" />
         </div>
 
         {/* text or voice */}

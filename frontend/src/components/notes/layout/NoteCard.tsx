@@ -11,6 +11,14 @@ const statusStyles: Record<Note["status"], string> = {
 const NoteCard = ({ note }: { note: Note }) => {
   const icon = note.kind === "voice" ? <HiOutlineMicrophone className='text-lg' /> : <HiOutlineDocumentText className='text-lg' />
 
+  const wordCount = note.content ? note.content.trim().split(/\s+/).length : 0;
+
+  const dateLabel = new Date(note.createdAtISO).toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+
   return (
     <Link to={`/notes/${note.id}`}>
       <article className="bg-white rounded-2xl border border-slate-200 shadow-md p-5 h-full flex flex-col">
@@ -24,7 +32,7 @@ const NoteCard = ({ note }: { note: Note }) => {
         </div>
 
         <h4 className="mt-2 text-sm font-semibold text-slate-900 line-clamp-1">{note.title}</h4>
-        <p className="mt-2 text-sm text-slate-600 line-clamp-2">{note.description}</p>
+        <p className="mt-2 text-sm text-slate-600 line-clamp-2">{note.summary}</p>
 
         {note.tags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
@@ -36,8 +44,8 @@ const NoteCard = ({ note }: { note: Note }) => {
         )}
 
         <div className="mt-auto pt-4 flex items-center justify-between text-xs text-slate-500">
-          <span>{note.dateLabel}</span>
-          {typeof note.words === "number" && <span>{note.words} words</span>}
+          <span>{dateLabel}</span>
+          {wordCount > 0 && <span>{wordCount} words</span>}
         </div>
       </article>
     </Link>

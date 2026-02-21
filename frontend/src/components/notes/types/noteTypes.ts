@@ -12,12 +12,9 @@ export type NoteEntity = {
 export type Note = {
   id: string;
   title: string;
-  description: string;
   status: NoteStatus;
 
-  dateLabel: string;
   createdAtISO: string;
-  words?: number;
   kind?: "text" | "voice";
 
   tags: string[];
@@ -26,5 +23,7 @@ export type Note = {
   content?: string;
   keyPoints?: string[];
   entities?: NoteEntity[];
-  relatedIds?: string[];
+  // relatedIds?: string[];
 };
+
+export type RelatedNotesResponse = Note[]; // returned by GET /api/notes/:id/related

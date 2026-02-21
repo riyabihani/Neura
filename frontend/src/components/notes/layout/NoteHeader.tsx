@@ -12,6 +12,14 @@ const NoteHeader = ({ note } : { note: Note}) => {
   // icon depending on the type of note
   const icon = note.kind === "voice" ? <HiOutlineMicrophone className="text-2xl" /> : <HiOutlineDocumentText className="text-2xl" />
   
+  const wordCount = note.content ? note.content.trim().split(/\s+/).length : 0;
+
+  const dateLabel = new Date(note.createdAtISO).toLocaleDateString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
@@ -22,7 +30,7 @@ const NoteHeader = ({ note } : { note: Note}) => {
           <div>
             <h1 className="text-xl font-semibold text-slate-900">{note.title}</h1>
             <div className="mt-1 text-sm text-slate-500">
-              {note.dateLabel}{typeof note.words === "number" ? ` • ${note.words} words` : ""}
+              {dateLabel}{wordCount > 0 ? ` • ${wordCount} words` : ""}
             </div>
           </div>
         </div>

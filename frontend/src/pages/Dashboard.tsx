@@ -7,10 +7,12 @@ import { HiOutlineBolt } from "react-icons/hi2";
 import NotesActivityGraph from "../components/dashboard/layout/NotesActivityGraph";
 import TopTopics from "../components/dashboard/layout/TopTopics";
 import NoteCard from "../components/notes/layout/NoteCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddNote from "../components/common/AddNote";
 import { NOTES_MOCK } from "../components/notes/notesDummyData";
 import NoteGrid from "../components/notes/layout/NoteGrid";
+import type { Note } from "../components/notes/types/noteTypes";
+import { fetchNotes } from "../api/notesApi";
 
 function statIcon(iconKey: StatItem["iconKey"]) {
   switch(iconKey) {
@@ -43,8 +45,16 @@ function noteIcon(iconKey?: NoteItem["iconKey"]) {
 const Dashboard = () => {
   const data = dashboardMock;
   const [open, setOpen] = useState(false);
-  const notes = NOTES_MOCK;
-  const recent = notes.slice(0, 6)
+  // const notes = NOTES_MOCK;
+  const [notes, setNotes] = useState<Note[]>([]);
+
+  useEffect(() => {
+    fetchNotes()
+      .then(setNotes)
+      .catch(console.error);
+  }, []);
+
+  const recent = notes.slice(0, 8);
 
   return (
     <div className="min-h-screen bg-slate-50">
