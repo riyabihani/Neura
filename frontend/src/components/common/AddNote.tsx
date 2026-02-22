@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { HiOutlineDocumentText, HiOutlineX, HiOutlineMicrophone } from 'react-icons/hi';
 
 type AddNoteProps = {
@@ -6,11 +6,24 @@ type AddNoteProps = {
   onClose: () => void;
 }
 
+type SpeechRecognitionType = typeof window extends any ? (typeof window)["SpeechRecognition"] | (typeof window)["webkitSpeechRecognition"] : any;
+
+
 const AddNote = ({ open, onClose }: AddNoteProps) => {
   const [mode, setMode] = useState<"text" | "voice">("text");
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [transcript, setTranscript] = useState("");
+
+  const [isRecording, setIsRecording] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(true);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+
+  const recognitionRef = useRef<any>(null);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<BlobPart[]>([]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -27,6 +40,116 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
       document.body.style.overflow = "auto";
     }
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setSpeechSupported(false);
+      return;
+    }
+
+    setSpeechSupported(true);
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang= "en-US";
+
+    recognition.onresult = (event: any) => {
+      let combined = "";
+      for (let i = 0; i < event.results.length; i++) {
+        combined += event.results[i][0].transcript;
+      }
+      setTranscript(combined.trim());
+    };
+
+    recognition.onerror = (e: any) => {
+      console.error("SpeechRecognition error", e);
+      setIsRecording(false);
+    }
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    }
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      try {
+        recognition.stop();
+      } catch {}
+      recognition.current = null;
+    };
+  }, [open]);
+
+  const startAudioRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaStreamRef.current = stream;
+
+    const recorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = recorder;
+    chunksRef.current = [];
+
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunksRef.current.push(e.data);
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunksRef.current, {type: recorder.mimeType || "audiowebm" });
+      setAudioBlob(blob);
+
+      mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+      mediaStreamRef.current = null;
+    };
+
+    recorder.start();
+  };
+
+  const stopAudioRecording = () => {
+    try {
+      mediaRecorderRef.current?.stop();
+    } catch {}
+    return mediaRecorderRef.current = null;
+  }
+
+  const startSpeechToText = async () => {
+    if (!recognitionRef.current) return;
+
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+    await startAudioRecording();
+
+    setIsRecording(true);
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const stopSpeechToText = () => {
+    setIsRecording(false);
+    try {
+      recognitionRef.current?.stop();
+    } catch {}
+    stopAudioRecording();
+  };
+
+  const toggleVoice = async () => {
+    if (!speechSupported) return;
+
+    if (!isRecording) {
+      await startSpeechToText();
+    } else {
+      stopSpeechToText();
+    }
+  };
+
+  useEffect(() => {
+    if (!open || mode !== "voice") {
+      if (isRecording) stopSpeechToText();
+    }
+  }, [open, mode]);
 
   if (!open) return null;
 
@@ -64,10 +187,13 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
             <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="What's on your mind?" className='w-full h-40 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500'></textarea>
           ) : (
             <div className="flex flex-col items-center justify-center">
-              <button className="h-20 w-20 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-lg hover:scale-105 transition">
+              {!speechSupported && (
+                <p className="text-sm text-red-600 text-center">Speech-to-text is not supported in this browser, try Chrome or Edge.</p>
+              )}
+              <button type="button" onClick={toggleVoice} disabled={!speechSupported} className="h-20 w-20 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-lg hover:scale-105 transition">
                 <HiOutlineMicrophone className='text-3xl' />
               </button>
-              <p className="mt-3 text-sm text-slate-500">Tap to start recording</p>
+              <p className="mt-3 text-sm text-slate-500">{isRecording ? "Recording... Tap to stop." : "Tap to start recording"}</p>
 
               <div className="mt-6 w-full">
                 <label className="block text-xs font-medium text-slate-600 mb-2">
