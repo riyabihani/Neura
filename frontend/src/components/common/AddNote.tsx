@@ -6,9 +6,6 @@ type AddNoteProps = {
   onClose: () => void;
 }
 
-type SpeechRecognitionType = typeof window extends any ? (typeof window)["SpeechRecognition"] | (typeof window)["webkitSpeechRecognition"] : any;
-
-
 const AddNote = ({ open, onClose }: AddNoteProps) => {
   const [mode, setMode] = useState<"text" | "voice">("text");
   const [title, setTitle] = useState("");
@@ -44,7 +41,7 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
   useEffect(() => {
     if (!open) return;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setSpeechSupported(false);
       return;
@@ -79,7 +76,7 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
       try {
         recognition.stop();
       } catch {}
-      recognition.current = null;
+      recognitionRef.current = null;
     };
   }, [open]);
 
@@ -96,7 +93,7 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
     };
 
     recorder.onstop = () => {
-      const blob = new Blob(chunksRef.current, {type: recorder.mimeType || "audiowebm" });
+      const blob = new Blob(chunksRef.current, {type: recorder.mimeType || "audio/webm" });
       setAudioBlob(blob);
 
       mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
@@ -107,16 +104,17 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
   };
 
   const stopAudioRecording = () => {
+    const recorder = mediaRecorderRef.current
+    if (!recorder) return
     try {
-      mediaRecorderRef.current?.stop();
+      recorder.stop()
     } catch {}
-    return mediaRecorderRef.current = null;
+    mediaRecorderRef.current = null
   }
 
   const startSpeechToText = async () => {
     if (!recognitionRef.current) return;
 
-    await navigator.mediaDevices.getUserMedia({ audio: true });
     await startAudioRecording();
 
     setIsRecording(true);
@@ -150,6 +148,16 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
       if (isRecording) stopSpeechToText();
     }
   }, [open, mode]);
+
+  useEffect(() => {
+    if (!open) {
+      setTitle("");
+      setText("");
+      setTranscript("");
+      setAudioBlob(null);
+      setIsRecording(false);
+    }
+  }, [open])
 
   if (!open) return null;
 
