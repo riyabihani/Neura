@@ -85,4 +85,24 @@ router.delete("/:id", protect, async (req, res) => {
   }
 });
 
+
+// create a note
+router.post("/", protect, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { title, content, kind = "text" } = req.body;
+
+    if (!title?.trim() || !content?.trim()) {
+      return res.status(400).json({ message: "Title and content is required! "});
+    }
+
+    const { rows } = await pool.query(`INSERT INTO notes (user_id, title, content, kind) VALUES ($1, $2, $3, $4) RETURNING id::text AS id, title, content, status, kind, tags, summary, key_points AS "keyPoints", entities, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS "createdAtISO";`, [userId, title.trim(), content.trim(), kind]);
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to create note." });
+  }
+})
+
 export default router;

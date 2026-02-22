@@ -34,7 +34,6 @@ export type DashboardData = {
   };
   stats: StatItem[];
   topics: Topic[];
-  notes: NoteItem[];
   activity: {
     changeText: string;
     data: number[];

@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react'
 import { HiOutlineDocumentText, HiOutlineX, HiOutlineMicrophone } from 'react-icons/hi';
 import { transcribeAudio } from '../../api/transcribeApi';
+import { createNote } from '../../api/notesApi';
+import { useNavigate } from 'react-router-dom';
 
 type AddNoteProps = {
   open: boolean;
@@ -8,6 +10,7 @@ type AddNoteProps = {
 }
 
 const AddNote = ({ open, onClose }: AddNoteProps) => {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<"text" | "voice">("text");
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
@@ -18,12 +21,15 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
 
   const[isTranscribing, setIsTranscribing] = useState(false);
   const[transcribeError, setTranscribeError] = useState<string | null>(null);
-  const [micSupported, setMicSupported] = useState(true);
+  const[micSupported, setMicSupported] = useState(true);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const isStoppingRef = useRef(false);
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     const ok = !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== "undefined";
@@ -101,7 +107,6 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
 
     try {
       const data = await transcribeAudio(blob);
-      // setTranscript(data.text || "");
       const newText = (data.text || "").trim();
       if (newText) {
         setTranscript(prev => (prev ? `${prev}\n${newText}` : newText));
@@ -111,7 +116,7 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
     } finally {
       setIsTranscribing(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (!open || mode !== "voice") {
@@ -135,7 +140,46 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
       setIsTranscribing(false);
       setTranscribeError(null);
     }
-  }, [open, mode])
+  }, [open, mode]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+
+    const contentToSave = mode === "text" ? text.trim() : transcript.trim();
+
+    if (!title.trim()) {
+      setIsSaving(false);
+      setSaveError("Title is required.");
+      return;
+    }
+    if (!contentToSave) {
+      setIsSaving(false);
+      setSaveError("Content is required.");
+      return;
+    }
+
+    try {
+      const created = await createNote({
+        title: title.trim(),
+        content: contentToSave,
+        kind: mode,
+      });
+
+      setTitle("");
+      setText("");
+      setTranscript("");
+      setAudioBlob(null);
+      setTranscribeError(null);
+
+      onClose();
+      navigate(`/notes/${created.id}`);
+    } catch (e: any) {
+      setSaveError(e.message || "Failed to save note.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (!open) return null;
 
@@ -204,7 +248,10 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
 
         <div className="mt-6 flex items-center justify-end gap-2">
           <button onClick={onClose} className="border border-slate-200 px-4 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-700">Cancel</button>
-          <button className="border border-slate-200 px-4 py-2 rounded-lg text-sm font-medium text-white bg-violet-600 hover:opacity-90 transition">Save Note</button>
+          <button onClick={handleSave} disabled={isSaving || isTranscribing} className="border border-slate-200 px-4 py-2 rounded-lg text-sm font-medium text-white bg-violet-600 hover:opacity-90 transition">{isSaving ? "Saving..." : "Save Note"}</button>
+          {saveError && (
+            <p className="mt-3 text-sm text-red-600 text-right">{saveError}</p>
+          )}
         </div>
       </div>
     </div>
