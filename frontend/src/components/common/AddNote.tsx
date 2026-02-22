@@ -13,14 +13,21 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
   const [transcript, setTranscript] = useState("");
 
   const [isRecording, setIsRecording] = useState(false);
-  const [speechSupported, setSpeechSupported] = useState(true);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
 
-  const recognitionRef = useRef<any>(null);
+  const[isTranscribing, setIsTranscribing] = useState(false);
+  const[transcribeError, setTranscribeError] = useState<string | null>(null);
+  const [micSupported, setMicSupported] = useState(true);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
+  const isStoppingRef = useRef(false);
+
+  useEffect(() => {
+    const ok = !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== "undefined";
+    setMicSupported(ok);
+  }, []);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -38,48 +45,6 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
     }
   }, [open, onClose]);
 
-  useEffect(() => {
-    if (!open) return;
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setSpeechSupported(false);
-      return;
-    }
-
-    setSpeechSupported(true);
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang= "en-US";
-
-    recognition.onresult = (event: any) => {
-      let combined = "";
-      for (let i = 0; i < event.results.length; i++) {
-        combined += event.results[i][0].transcript;
-      }
-      setTranscript(combined.trim());
-    };
-
-    recognition.onerror = (e: any) => {
-      console.error("SpeechRecognition error", e);
-      setIsRecording(false);
-    }
-
-    recognition.onend = () => {
-      setIsRecording(false);
-    }
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      try {
-        recognition.stop();
-      } catch {}
-      recognitionRef.current = null;
-    };
-  }, [open]);
-
   const startAudioRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     mediaStreamRef.current = stream;
@@ -92,12 +57,16 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
       if (e.data.size > 0) chunksRef.current.push(e.data);
     };
 
-    recorder.onstop = () => {
+    recorder.onstop = async () => {
+      isStoppingRef.current = false;
+      setIsRecording(false);
       const blob = new Blob(chunksRef.current, {type: recorder.mimeType || "audio/webm" });
       setAudioBlob(blob);
 
       mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
       mediaStreamRef.current = null;
+
+      await transcribeWithWhisper(blob);
     };
 
     recorder.start();
@@ -105,59 +74,80 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
 
   const stopAudioRecording = () => {
     const recorder = mediaRecorderRef.current
-    if (!recorder) return
+    if (!recorder || isStoppingRef.current) return;
+    isStoppingRef.current = true;
     try {
       recorder.stop()
     } catch {}
     mediaRecorderRef.current = null
   }
 
-  const startSpeechToText = async () => {
-    if (!recognitionRef.current) return;
-
-    await startAudioRecording();
-
-    setIsRecording(true);
-    try {
-      recognitionRef.current.start();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const stopSpeechToText = () => {
-    setIsRecording(false);
-    try {
-      recognitionRef.current?.stop();
-    } catch {}
-    stopAudioRecording();
-  };
-
   const toggleVoice = async () => {
-    if (!speechSupported) return;
+    if (!micSupported || isTranscribing) return;
 
     if (!isRecording) {
-      await startSpeechToText();
+      setTranscribeError(null);
+      await startAudioRecording();
+      setIsRecording(true);
     } else {
-      stopSpeechToText();
+      stopAudioRecording();
     }
   };
+
+  const transcribeWithWhisper = async (blob: Blob) => {
+    setIsTranscribing(true);
+    setTranscribeError(null);
+
+    try {
+      const form = new FormData();
+      form.append("file", blob, "note.webm");
+
+      const res = await fetch("http://localhost:8000/api/transcribe", {
+        method: "POST",
+        body: form,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.detail || "Transcription failed.");
+      }
+
+      const data = await res.json();
+      // setTranscript(data.text || "");
+      const newText = (data.text || "").trim();
+      if (newText) {
+        setTranscript(prev => (prev ? `${prev}\n${newText}` : newText));
+      }
+    } catch (error: any) {
+      setTranscribeError(error.message || "Transcription failed");
+    } finally {
+      setIsTranscribing(false);
+    }
+  }
 
   useEffect(() => {
     if (!open || mode !== "voice") {
-      if (isRecording) stopSpeechToText();
-    }
-  }, [open, mode]);
+      try { mediaRecorderRef.current?.stop(); } catch {}
+      mediaRecorderRef.current = null;
 
-  useEffect(() => {
+      mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+      mediaStreamRef.current = null;
+
+      chunksRef.current = [];
+      isStoppingRef.current = false;
+
+      setIsRecording(false);
+    }
+
     if (!open) {
       setTitle("");
       setText("");
       setTranscript("");
       setAudioBlob(null);
-      setIsRecording(false);
+      setIsTranscribing(false);
+      setTranscribeError(null);
     }
-  }, [open])
+  }, [open, mode])
 
   if (!open) return null;
 
@@ -195,13 +185,17 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
             <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="What's on your mind?" className='w-full h-40 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500'></textarea>
           ) : (
             <div className="flex flex-col items-center justify-center">
-              {!speechSupported && (
-                <p className="text-sm text-red-600 text-center">Speech-to-text is not supported in this browser, try Chrome or Edge.</p>
+              {!micSupported && (
+                <p className="text-sm text-red-600 text-center">Mic is not supported in this browser.</p>
               )}
-              <button type="button" onClick={toggleVoice} disabled={!speechSupported} className="h-20 w-20 rounded-full bg-violet-600 text-white flex items-center justify-center shadow-lg hover:scale-105 transition">
+              <button type="button" onClick={toggleVoice} disabled={!micSupported || isTranscribing} className={`h-20 w-20 rounded-full flex items-center justify-center shadow-lg transition ${(!micSupported || isTranscribing) ? "bg-slate-300 cursor-not-allowed" : "bg-violet-600 text-white hover:scale-105"}`}>
                 <HiOutlineMicrophone className='text-3xl' />
               </button>
-              <p className="mt-3 text-sm text-slate-500">{isRecording ? "Recording... Tap to stop." : "Tap to start recording"}</p>
+              <p className="mt-3 text-sm text-slate-500">{isRecording ? "Recording... Tap to stop." : "Tap to start recording"}{isTranscribing ? "- Transcribing..." : ""}</p>
+
+              {transcribeError && (
+                <p className="mt-2 text-sm text-red-600 text-center">{transcribeError}</p>
+              )}
 
               <div className="mt-6 w-full">
                 <label className="block text-xs font-medium text-slate-600 mb-2">

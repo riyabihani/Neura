@@ -4,7 +4,7 @@ import type { NoteItem, StatItem } from "../components/dashboard/types/dashboard
 import { HiOutlineDocumentText, HiOutlineMicrophone, HiPlus } from "react-icons/hi";
 import { PiBrain } from "react-icons/pi";
 import { HiOutlineBolt } from "react-icons/hi2";
-import NotesActivityGraph from "../components/dashboard/layout/NotesActivityGraph";
+import NotesActivityGraph from "../components/dashboard/layout/NotesActivityGraph"
 import TopTopics from "../components/dashboard/layout/TopTopics";
 import NoteCard from "../components/notes/layout/NoteCard";
 import { useState, useEffect } from "react";
