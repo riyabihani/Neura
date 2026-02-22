@@ -1,12 +1,12 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
-import type { NoteTabKey } from '../components/notes/types/noteTypes';
+import type { NoteTabKey } from '../types/noteTypes';
 import { NOTES_MOCK } from '../components/notes/notesDummyData';
 import { HiArrowLeft, HiPlus } from 'react-icons/hi';
-import NoteHeader from '../components/notes/layout/NoteHeader';
-import NoteTabs from '../components/notes/layout/NoteTabs';
-import NoteMetaPanel from '../components/notes/layout/NoteMetaPanel';
-import type { Note } from '../components/notes/types/noteTypes';
+import NoteHeader from '../components/notes/NoteHeader';
+import NoteTabs from '../components/notes/NoteTabs';
+import NoteMetaPanel from '../components/notes/NoteMetaPanel';
+import type { Note } from '../types/noteTypes';
 import { deleteNoteById, fetchNoteById, fetchRelatedNotes } from '../api/notesApi';
 import AddNote from '../components/common/AddNote';
 
@@ -16,6 +16,7 @@ const NoteDetails = () => {
   const [tab, setTab] = useState<NoteTabKey>("summary");
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showLoadingUI, setShowLoadingUI] = useState(false);
   const [related, setRelated] = useState<Note[]>([]);
   const [open, setOpen] = useState(false);
 
@@ -29,12 +30,23 @@ const NoteDetails = () => {
   // }, [note]);
 
   useEffect(() => {
+    if (!loading) {
+      setShowLoadingUI(false);
+      return;
+    }
+
+    const t = setTimeout(() => setShowLoadingUI(true), 300); // show only if slow
+    return () => clearTimeout(t);
+  }, [loading]);
+
+  useEffect(() => {
     if (!id) return;
     let cancelled = false;
 
     async function load() {
+      const startedAt = Date.now();
       setLoading(true);
-      try {
+       try {
         const data = await fetchNoteById(String(id));
         if (cancelled) return;
         setNote(data);
@@ -48,30 +60,51 @@ const NoteDetails = () => {
         setNote(null);
         setRelated([]);
       } finally {
-        if (!cancelled) setLoading(false);
+        // ✅ if loader became visible, keep it visible for at least 300ms
+        const elapsed = Date.now() - startedAt;
+        const minVisible = 300;
+
+        // showLoadingUI only flips true after 200ms; we still enforce a minimum
+        const wait = Math.max(0, minVisible - elapsed);
+
+        setTimeout(() => {
+          if (!cancelled) setLoading(false);
+        }, wait);
       }
     }
+
     load();
     return () => {
       cancelled = true;
-    }
+    };
   }, [id]);
 
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen bg-slate-50">
-  //       <div className="max-w-6xl mx-auto px-8 py-8">
-  //         <button
-  //           onClick={() => navigate(-1)}
-  //           className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-500"
-  //         >
-  //           <HiArrowLeft /> Back
-  //         </button>
-  //         <div className="mt-6 rounded-2xl border bg-white p-6">Loading...</div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (loading) {
+    // If it’s a quick load (<200ms), show nothing special (no flicker)
+    if (!showLoadingUI) {
+      return (
+        <div className="min-h-screen bg-slate-50">
+          <div className="max-w-6xl mx-auto px-8 py-8" />
+        </div>
+      );
+    }
+
+    // If it’s slow, show your loader UI
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <div className="max-w-6xl mx-auto px-8 py-8">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-500"
+          >
+            <HiArrowLeft /> Back
+          </button>
+          <div className="mt-6 rounded-2xl border bg-white p-6">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
 
   // when note does not exist
   if (!note) {

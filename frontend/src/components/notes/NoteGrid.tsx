@@ -1,4 +1,4 @@
-import type { Note } from '../types/noteTypes'
+import type { Note } from '../../types/noteTypes'
 import NoteCard from './NoteCard'
 
 const NoteGrid = ({ notes }: {notes: Note[]}) => {

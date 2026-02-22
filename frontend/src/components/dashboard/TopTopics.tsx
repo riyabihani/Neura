@@ -1,4 +1,4 @@
-import type { Topic, StatColors } from '../types/dashboardTypes'
+import type { Topic, StatColors } from '../../types/dashboardTypes'
 import Card from './Card';
 
 const colorClass: Record<StatColors, string> = {

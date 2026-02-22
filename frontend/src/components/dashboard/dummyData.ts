@@ -1,4 +1,4 @@
-import type { DashboardData } from './types/dashboardTypes'
+import type { DashboardData } from '../../types/dashboardTypes'
 import { NOTES_MOCK } from '../notes/notesDummyData';
 
 export const dashboardMock: DashboardData = {

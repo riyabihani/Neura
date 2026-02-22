@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { HiOutlineDocumentText, HiOutlineX, HiOutlineMicrophone } from 'react-icons/hi';
+import { transcribeAudio } from '../../api/transcribeApi';
 
 type AddNoteProps = {
   open: boolean;
@@ -99,20 +100,7 @@ const AddNote = ({ open, onClose }: AddNoteProps) => {
     setTranscribeError(null);
 
     try {
-      const form = new FormData();
-      form.append("file", blob, "note.webm");
-
-      const res = await fetch("http://localhost:8000/api/transcribe", {
-        method: "POST",
-        body: form,
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.detail || "Transcription failed.");
-      }
-
-      const data = await res.json();
+      const data = await transcribeAudio(blob);
       // setTranscript(data.text || "");
       const newText = (data.text || "").trim();
       if (newText) {

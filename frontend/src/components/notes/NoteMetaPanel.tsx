@@ -1,5 +1,5 @@
 import RelatedNotesList from './RelatedNotesList'
-import type { Note } from '../types/noteTypes';
+import type { Note } from '../../types/noteTypes';
 import { LuTags } from 'react-icons/lu';
 import { GoPeople } from 'react-icons/go';
 

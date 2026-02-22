@@ -1,5 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom'
-import type { Note } from '../types/noteTypes';
+import type { Note } from '../../types/noteTypes';
 import { HiChevronRight } from 'react-icons/hi';
 import { BiNetworkChart } from 'react-icons/bi';
 

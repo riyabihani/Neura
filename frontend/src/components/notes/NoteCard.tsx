@@ -1,4 +1,4 @@
-import type { Note } from '../types/noteTypes';
+import type { Note } from '../../types/noteTypes';
 import { HiOutlineDocumentText, HiOutlineMicrophone } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 

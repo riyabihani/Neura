@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Note, NoteTabKey } from '../types/noteTypes'
+import type { Note, NoteTabKey } from '../../types/noteTypes'
 import { LuSparkles } from 'react-icons/lu';
 import { HiOutlineDocumentText } from 'react-icons/hi';
 import { PiListBulletsBold } from 'react-icons/pi';

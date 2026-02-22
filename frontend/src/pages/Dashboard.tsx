@@ -1,17 +1,17 @@
-import StatCard from "../components/dashboard/layout/StatCard";
+import StatCard from "../components/dashboard/StatCard";
 import { dashboardMock } from "../components/dashboard/dummyData";
-import type { NoteItem, StatItem } from "../components/dashboard/types/dashboardTypes";
+import type { NoteItem, StatItem } from "../types/dashboardTypes";
 import { HiOutlineDocumentText, HiOutlineMicrophone, HiPlus } from "react-icons/hi";
 import { PiBrain } from "react-icons/pi";
 import { HiOutlineBolt } from "react-icons/hi2";
-import NotesActivityGraph from "../components/dashboard/layout/NotesActivityGraph"
-import TopTopics from "../components/dashboard/layout/TopTopics";
-import NoteCard from "../components/notes/layout/NoteCard";
+import NotesActivityGraph from "../components/dashboard/NotesActivityGraph"
+import TopTopics from "../components/dashboard/TopTopics";
+import NoteCard from "../components/notes/NoteCard";
 import { useState, useEffect } from "react";
 import AddNote from "../components/common/AddNote";
 import { NOTES_MOCK } from "../components/notes/notesDummyData";
-import NoteGrid from "../components/notes/layout/NoteGrid";
-import type { Note } from "../components/notes/types/noteTypes";
+import NoteGrid from "../components/notes/NoteGrid";
+import type { Note } from "../types/noteTypes";
 import { fetchNotes } from "../api/notesApi";
 
 function statIcon(iconKey: StatItem["iconKey"]) {

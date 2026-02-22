@@ -1,4 +1,4 @@
-import type { Note } from "./types/noteTypes";
+import type { Note } from "../../types/noteTypes";
 
 export const NOTES_MOCK: Note[] = [
   {
