@@ -13,6 +13,7 @@ import { NOTES_MOCK } from "../components/notes/notesDummyData";
 import NoteGrid from "../components/notes/NoteGrid";
 import type { Note } from "../types/noteTypes";
 import { fetchNotes } from "../api/notesApi";
+import { Link } from "react-router-dom";
 
 function statIcon(iconKey: StatItem["iconKey"]) {
   switch(iconKey) {
@@ -69,7 +70,10 @@ const Dashboard = () => {
 
         {/* Recent Notes */}
         <div className="mt-8">
-          <h2 className="text-base font-semibold text-slate-900">Recent Notes</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold text-slate-900">Recent Notes</h2>
+            <Link to="/notes" className="text-blue-600 underline">See all notes</Link>
+          </div>
           <div className="mt-4">
             {/* {notes.map((n) => (
               <NoteCard key={n.id} note={n} />
