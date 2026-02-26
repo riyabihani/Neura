@@ -7,7 +7,7 @@ import { PiListBulletsBold } from 'react-icons/pi';
 // button for each tab
 const TabButton = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) => {
   return (
-    <button onClick={onClick} className={`text-sm font-semibold px-3 py-1.5 transition ${active ? "text-slate-900 bg-white border-slate-900 border-b border-violet-600 scale-115" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"}`}>{children}</button>
+    <button onClick={onClick} className={`text-sm font-semibold px-3 py-1.5 transition ${active ? "text-slate-900 bg-white border-b border-violet-600 scale-115" : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"}`}>{children}</button>
   );
 }
 

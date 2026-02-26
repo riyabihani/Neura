@@ -13,7 +13,7 @@ import AddNote from '../components/common/AddNote';
 const NoteDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<NoteTabKey>("summary");
+  const [tab, setTab] = useState<NoteTabKey>("content");
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
   const [showLoadingUI, setShowLoadingUI] = useState(false);

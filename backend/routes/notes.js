@@ -1,6 +1,7 @@
 import express from "express";
 import pool from "../config/db.js"
 import { protect } from "../middleware/auth.js"
+import { embeddingsForNote } from "../services/embeddings.js";
 
 const router = express.Router();
 
@@ -97,8 +98,11 @@ router.post("/", protect, async (req, res) => {
     }
 
     const { rows } = await pool.query(`INSERT INTO notes (user_id, title, content, kind) VALUES ($1, $2, $3, $4) RETURNING id::text AS id, title, content, status, kind, tags, summary, key_points AS "keyPoints", entities, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS "createdAtISO";`, [userId, title.trim(), content.trim(), kind]);
+    
+    const note = rows[0]
+    res.status(201).json(note);
 
-    res.status(201).json(rows[0]);
+    embeddingsForNote({pool, userId, noteId:Number(note.id), content: note.content}).catch((e) => console.error("Embedding / chunking failed: ", e))
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to create note." });

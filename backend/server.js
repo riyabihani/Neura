@@ -1,10 +1,10 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser';
-import authRoutes from './routes/auth.js';
-import notesRoutes from './routes/notes.js'
-
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/auth.js";
+import notesRoutes from "./routes/notes.js";
+import searchRoutes from "./routes/search.js";
 
 dotenv.config();
 
@@ -19,8 +19,9 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/api/auth', authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/notes", notesRoutes);
+app.use("/api/search", searchRoutes)
 
 const PORT = process.env.PORT || 5000;
 
