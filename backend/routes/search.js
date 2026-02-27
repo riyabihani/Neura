@@ -17,7 +17,7 @@ router.get("/", protect, async (req, res) => {
 
     if (mode === "exact") {
       const { rows } =
-        await pool.query(`SELECT n.id::text AS id, n.title, n.summary, n.tags, to_char(n.created_at, 'YYYY-MM-DD) AT "createdAt", LEFT(n.content, 180) AS snippet FROM notes n WHERE n.user_id = $1 AND (
+        await pool.query(`SELECT n.id::text AS id, n.title, n.summary, n.tags, to_char(n.created_at, 'YYYY-MM-DD') AS "createdAt", LEFT(n.content, 180) AS snippet FROM notes n WHERE n.user_id = $1 AND (
           n.title ILIKE '%' || $2 || '%' OR n.content ILIKE '%' || $2 || '%' OR EXISTS (SELECT 1 FROM unnest(COALESCE(n.tags, ARRAY[]::text[])) t WHERE t ILIKE '%' || $2 || '%' )
         ) ORDER BY n.created_at DESC LIMIT ${LIMIT};`, [userId, q]);
       
@@ -28,8 +28,8 @@ router.get("/", protect, async (req, res) => {
       const vec = await embedQuery(q);
       const vecStr = `[${vec.join(",")}]`;
       const { rows } = await pool.query(
-        `WITH ranked AS (SELECT nc.note_id, nc.check_index, nc.chunk_text, 1 - (nc.embedding <=> $2::vector(382)) AS score, ROW_NUMBER() OVER (PARTITION BY nc.note_id ORDER BY nc.embedding <=> $2::vector(382)) FROM note_chunks nc WHERE nc.user_id = $1)
-        SELECT n.id::text AS id, n.title, n.summary, n.tags, to_char(n.created_at, 'YYYY-MM-DD) AT "createdAt", r.chunk_index AS "chunkIndex", LEFT(r.chunk_text, 220) AS snippet, r.score FROM ranked r JOIN notes n ON n.id = r.note_id WHERE r.rn = 1 ORDER BY r.score DESC LIMIT ${LIMIT};`, (userId, vecStr));
+        `WITH ranked AS (SELECT nc.note_id, nc.chunk_index, nc.chunk_text, 1 - (nc.embedding <=> $2::vector(384)) AS score, ROW_NUMBER() OVER (PARTITION BY nc.note_id ORDER BY nc.embedding <=> $2::vector(384)) AS rn FROM note_chunks nc WHERE nc.user_id = $1)
+        SELECT n.id::text AS id, n.title, n.summary, n.tags, to_char(n.created_at, 'YYYY-MM-DD') AS "createdAt", r.chunk_index AS "chunkIndex", LEFT(r.chunk_text, 220) AS snippet, r.score FROM ranked r JOIN notes n ON n.id = r.note_id WHERE r.rn = 1 ORDER BY r.score DESC LIMIT ${LIMIT};`, [userId, vecStr]);
       
       const results = rows.map((r) => ({
         ...r,

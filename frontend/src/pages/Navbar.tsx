@@ -6,6 +6,7 @@ import { HiOutlineChartBar, HiOutlineMenu, HiOutlineSearch, HiOutlineX } from 'r
 import { RiUser3Line } from 'react-icons/ri';
 import { HiOutlineArrowRightOnRectangle, HiOutlineChatBubbleLeftRight, HiOutlineSquares2X2 } from 'react-icons/hi2';
 import { useAuth } from '../auth/AuthProvider';
+import { FaSearch } from 'react-icons/fa';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -52,7 +53,11 @@ const Navbar = () => {
 
         {/* Right Side */}
         {user && (
-          <div className="flex items-center gap-9">
+          <div className="flex items-center gap-6">
+            <Link to="/search">
+              <FaSearch className="h-10 w-5 rounded-full text-slate-600 hover:text-violet-600 transition-colors" />
+            </Link>
+            
             <Link to="/" className="flex items-center gap-3 cursor-pointer">
               <div className="h-8 w-8 rounded-full bg-violet-500 flex items-center justify-center text-white">
                 <RiUser3Line className="text-xl" />
