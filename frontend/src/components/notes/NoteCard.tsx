@@ -9,7 +9,7 @@ const statusStyles: Record<Note["status"], string> = {
 };
 
 const NoteCard = ({ note }: { note: Note }) => {
-  const icon = note.kind === "voice" ? <HiOutlineMicrophone className='text-lg' /> : <HiOutlineDocumentText className='text-lg' />
+  const icon = note.kind === "voice" ? <HiOutlineMicrophone className='text-lg' /> : <HiOutlineDocumentText className='text-lg' />;
 
   const wordCount = note.content ? note.content.trim().split(/\s+/).length : 0;
 

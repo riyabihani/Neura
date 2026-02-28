@@ -58,6 +58,10 @@ const SearchPage = () => {
           <p className="text-sm flex justify-center text-gray-700 mb-6">Semantic search finds notes by meaning, not just exact words.</p>
         )} 
 
+        {mode === "exact" && !q && (
+          <p className="text-sm flex justify-center text-gray-700 mb-6">Exact search matches your exact keywords.</p>
+        )} 
+
         {loading && (
           <p className="text-gray-500">Searching...</p>
         )}

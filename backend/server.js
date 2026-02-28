@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.js";
 import notesRoutes from "./routes/notes.js";
 import searchRoutes from "./routes/search.js";
+import ragRoutes from "./routes/rag.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/search", searchRoutes)
+app.use("/api/ask", ragRoutes);
 
 const PORT = process.env.PORT || 5000;
 

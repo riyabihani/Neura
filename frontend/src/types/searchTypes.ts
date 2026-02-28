@@ -3,6 +3,7 @@ export type Mode = "exact" | "semantic";
 export type SearchResult = {
   id: string;
   title: string;
+  kind: string;
   summary?: string;
   tags?: string[];
   createdAt: string;
