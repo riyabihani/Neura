@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/search", searchRoutes)
-app.use("/api/ask", ragRoutes);
+app.use("/api/rag", ragRoutes);
 
 const PORT = process.env.PORT || 5000;
 

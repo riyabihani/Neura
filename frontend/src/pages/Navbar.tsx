@@ -77,15 +77,15 @@ const Navbar = () => {
         <div ref={menuRef} className="px-8 py-3 border-t border-slate-200 bg-white">
           <div className="max-w-full">
             <nav className="space-y-2">
-              <Link to="/" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
+              {/* <Link to="/" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
                 <HiOutlineSquares2X2 className='text-xl' /> Dashboard
-              </Link>
+              </Link> */}
 
-              <Link to="/" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
+              <Link to="/search" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
                 <HiOutlineSearch className='text-xl' /> Search
               </Link>
 
-              <Link to="/" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
+              <Link to="/ask" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
                 <HiOutlineChatBubbleLeftRight className='text-xl' /> Ask Notes
               </Link>
 

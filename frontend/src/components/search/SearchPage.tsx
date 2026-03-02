@@ -48,7 +48,7 @@ const SearchPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-5xl mx-auto px-6 py-10">
         <h1 className="text-3xl font-semibold mb-2">Search your Knowledge</h1>
         <p className="text-gray-500 mb-6">Find any thought, idea or insight from your notes</p>
 

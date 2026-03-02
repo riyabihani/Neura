@@ -1,7 +1,7 @@
 import express from "express";
 import pool from "../config/db.js";
-import { protect } from "../middleware/auth";
-import { embedQuery } from "../services/embeddingQuery";
+import { protect } from "../middleware/auth.js";
+import { embedQuery } from "../services/embeddingQuery.js";
 import { groqGenerate } from "../services/llmGroq.js";
 
 const router = express.Router();
@@ -23,11 +23,16 @@ router.post("/ask", protect, async (req, res) => {
 
     // retrieve top chunks - best chunk per note so that long notes do not dominate
     const TOP_K = 6;
+    // const MAX_CITATIONS = 6;
+    // const MIN_SCORE = 0.28;
 
     const { rows } = await pool.query(
       `WITH ranked AS (SELECT nc.note_id, nc.chunk_index, nc.chunk_text, (nc.embedding <=> $2::vector(384)) AS dist, ROW_NUMBER() OVER (PARTITION BY nc.note_id ORDER BY nc.embedding <=> $2::vector(384)) AS rn FROM note_chunks nc WHERE nc.user_id = $1)
-      SELECT n.id::text AS "noteId", n.title, to_char(n.created_at, 'YYYY-MM-DD) As "createdAt", r.chunk_index AS "chunkIndex", r.chunk_text AS "chunkText", (1 - r.dist) AS score FROM ranked r JOIN notes n ON n-id = r.note_id WHERE r.rn = 1 ORDER BY r.dist ASC LIMIT ${TOP_K};`, [userId, qVecStr]
+      SELECT n.id::text AS "noteId", n.title, to_char(n.created_at, 'YYYY-MM-DD') AS "createdAt", r.chunk_index AS "chunkIndex", r.chunk_text AS "chunkText", (1 - r.dist) AS score FROM ranked r JOIN notes n ON n.id = r.note_id WHERE r.rn = 1 ORDER BY r.dist ASC LIMIT ${TOP_K};`, [userId, qVecStr]
     );
+    // const filtered = rows
+    //   .filter((r) => (r.score ?? 0) >= MIN_SCORE)
+    //   .slice(0, MAX_CITATIONS);
 
     if (!rows.length) {
       return res.json({
@@ -40,7 +45,7 @@ router.post("/ask", protect, async (req, res) => {
     // build context blocks with numbered citations
     const contextBlocks = rows.map((r, i) => {
       const idx = i + 1;
-      return `[${id}] Title: ${r.title}\nDate: ${r.createdAt}\n${r.chunkText}`;
+      return `[${idx}] Title: ${r.title}\nDate: ${r.createdAt}\n${r.chunkText}`;
     });
 
     const system = `You are Neura, a personal knowlegde assistant. Use ONLY the provided context to answer. If the context is insufficient, say you do not know and ask a follow-up question. Cite sources inline like [1], [2] corresponding to the context blocks. Keep it clear and helpful.`.trim();
@@ -49,7 +54,7 @@ router.post("/ask", protect, async (req, res) => {
     // asking groq
     const answer = await groqGenerate({ system, user });
     const citations = rows.map((r, i) => ({
-      ref: i + 1, noteId: r.noteId, title: r.title, createdAt: r.createdAt, chunkIndex: r.chunkIndex, score: r.score, fromLabel: `From Note: '${r.title}' (${r.createdAt})`
+      ref: i + 1, noteId: r.noteId, title: r.title, createdAt: r.createdAt, chunkIndex: r.chunkIndex, score: r.score, fromLabel: `From: Note '${r.title}' (${r.createdAt})`
     }));
     
   res.json({ question, answer, citations })

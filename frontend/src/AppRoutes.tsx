@@ -7,6 +7,8 @@ import Dashboard from './pages/Dashboard';
 import NoteDetails from './pages/NoteDetails';
 import AllNotes from './pages/AllNotes';
 import SearchPage from './components/search/SearchPage';
+import RAG from './components/rag/EmptyRag';
+import AskNotes from './pages/AskNotes';
 
 const AppRoutes = () => {
   const { user, setUser, loading } = useAuth();
@@ -23,6 +25,7 @@ const AppRoutes = () => {
         <Route path="/notes/:id" element={user ? <NoteDetails /> : <Navigate to="/login" replace />} />
         <Route path="/notes" element={user ? <AllNotes /> : <Navigate to="/login" replace />} />
         <Route path="/search" element={user ? <SearchPage /> : <Navigate to="/login" replace />} />
+        <Route path="/ask" element={user ? <AskNotes /> : <Navigate to="/login" replace />} />
         <Route path="/login" element={!user ? <Login setUser={setUser} /> : <Navigate to="/" replace />} />
         <Route path="/register" element={!user ? <Register setUser={setUser} /> : <Navigate to="/" replace />} />        
 
