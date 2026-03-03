@@ -2,6 +2,7 @@ import express from "express";
 import pool from "../config/db.js"
 import { protect } from "../middleware/auth.js"
 import { embeddingsForNote } from "../services/embeddings.js";
+import { noteSummaryQueue } from "../queues/noteSummaryQueue.js";
 
 const router = express.Router();
 
@@ -86,7 +87,6 @@ router.delete("/:id", protect, async (req, res) => {
   }
 });
 
-
 // create a note
 router.post("/", protect, async (req, res) => {
   try {
@@ -97,9 +97,22 @@ router.post("/", protect, async (req, res) => {
       return res.status(400).json({ message: "Title and content is required! "});
     }
 
-    const { rows } = await pool.query(`INSERT INTO notes (user_id, title, content, kind) VALUES ($1, $2, $3, $4) RETURNING id::text AS id, title, content, status, kind, tags, summary, key_points AS "keyPoints", entities, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS "createdAtISO";`, [userId, title.trim(), content.trim(), kind]);
+    const { rows } = await pool.query(`INSERT INTO notes (user_id, title, content, kind, status) VALUES ($1, $2, $3, $4, 'Queued'::note_status) RETURNING id::text AS id, title, content, status, kind, tags, summary, key_points AS "keyPoints", entities, to_char(created_at, 'YYYY-MM-DD"T"HH24:MI:SS') AS "createdAtISO";`, [userId, title.trim(), content.trim(), kind]);
     
-    const note = rows[0]
+    const note = rows[0];
+
+    const job = await noteSummaryQueue.add("summarize-note", 
+      { noteId: Number(note.id, userId) },
+      {
+        attempts: 3,
+        backoff: { type: "exponential", delay: 2000 }
+      }
+    );
+
+    await pool.query(`UPDATE notes SET summary_job_id=$1 WHERE id=$2 AND user_id=$3`, 
+      [String(job.id), Number(note.id), userId]
+    );
+
     res.status(201).json(note);
 
     embeddingsForNote({pool, userId, noteId:Number(note.id), content: note.content}).catch((e) => console.error("Embedding / chunking failed: ", e))

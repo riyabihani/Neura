@@ -1,4 +1,4 @@
-export type NoteStatus = "Queued" | "Processing" | "Completed";
+export type NoteStatus = "Queued" | "Processing" | "Completed" | "Failed";
 
 export type NoteTabKey = "summary" | "content" | "keyPoints";
 
