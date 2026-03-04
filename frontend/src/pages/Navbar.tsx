@@ -37,7 +37,7 @@ const Navbar = () => {
   }
 
   const itemClass = (path: string) =>{
-    return `flex items-center gap-3 rounded-lg px-4 py-3 text-base transition-colors ${isActive(path) ? "hover:bg-violet-100 text-purple-700 hover:px-2" : "text-slate-700 hover:bg-slate-100"}` 
+    return `flex items-center gap-3 rounded-lg px-4 py-3 text-base transition-colors ${isActive(path) ? "hover:bg-violet-100 text-purple-700 hover:px-2" : "text-slate-700 hover:bg-slate-100 hover:px-2"}` 
   }
 
   return (
@@ -77,21 +77,21 @@ const Navbar = () => {
         <div ref={menuRef} className="px-8 py-3 border-t border-slate-200 bg-white">
           <div className="max-w-full">
             <nav className="space-y-2">
-              {/* <Link to="/" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
+              <Link to="/" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
                 <HiOutlineSquares2X2 className='text-xl' /> Dashboard
-              </Link> */}
+              </Link>
 
-              <Link to="/search" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
+              <Link to="/search" onClick={() => setMenuOpen(false)} className={itemClass("/search")}>
                 <HiOutlineSearch className='text-xl' /> Search
               </Link>
 
-              <Link to="/ask" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
+              <Link to="/ask" onClick={() => setMenuOpen(false)} className={itemClass("/ask")}>
                 <HiOutlineChatBubbleLeftRight className='text-xl' /> Ask Notes
               </Link>
 
-              <Link to="/" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
+              {/* <Link to="/" onClick={() => setMenuOpen(false)} className={itemClass("/")}>
                 <HiOutlineChartBar className='text-xl' /> Insights
-              </Link>
+              </Link> */}
 
               <button onClick={handleLogout} className="mt-2 w-full text-left flex items-center gap-3 rounded-lg px-4 py-3 text-base text-red-600 hover:bg-red-50 hover:px-2 transition-colors">
                 <HiOutlineArrowRightOnRectangle className="text-xl" />
