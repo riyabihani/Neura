@@ -9,14 +9,14 @@ function buildPrompt(noteText) {
   {
     "summary": "3-5 sentence summary",
     "keyPoints": ["3-7 bullet points"],
-    "tags": ["3-10 short tags"],
+    "tags": ["3-10 short tags"]
   }
   
   Text: ${noteText}`.trim();
 }
 
 function safeJsonParse(raw) {
-  const trimmed = String(rew || "").trim();
+  const trimmed = String(raw || "").trim();
   const noFences = trimmed.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
   try {
     return JSON.parse(noFences);
@@ -28,10 +28,10 @@ function safeJsonParse(raw) {
     return JSON.parse(noFences.slice(start, end + 1));
   }
 
-  throw new Error("LLm returned invalid JSON")
+  throw new Error("LLM returned invalid JSON")
 }
 
-new Worker("note-summry",
+new Worker("note-summary",
   async (job) => {
     const { noteId, userId } = job.data;
     console.log("Processing note:", noteId);

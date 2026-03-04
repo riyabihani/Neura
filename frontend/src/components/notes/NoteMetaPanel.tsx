@@ -36,7 +36,7 @@ const NoteMetaPanel = ({ note, related }: { note: Note; related: Note[]}) => {
       </div>
 
       {/* entities */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      {/* <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-1 text-sm font-semibold text-slate-900">
           <div className=" h-5 w-5 rounded-md bg-violet-100 flex items-center justify-center">
             <GoPeople className="h-3 w-3 text-violet-700" />
@@ -50,7 +50,7 @@ const NoteMetaPanel = ({ note, related }: { note: Note; related: Note[]}) => {
             <span className="text-xs text-slate-500">No entities yet</span>
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* related notes */}
       <RelatedNotesList notes={related} />

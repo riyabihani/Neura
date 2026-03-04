@@ -3,6 +3,7 @@ import pool from "../config/db.js"
 import { protect } from "../middleware/auth.js"
 import { embeddingsForNote } from "../services/embeddings.js";
 import { noteSummaryQueue } from "../queues/noteSummaryQueue.js";
+import { computeRelatedNotes } from "../services/relatedNotes.js";
 
 const router = express.Router();
 
@@ -102,7 +103,7 @@ router.post("/", protect, async (req, res) => {
     const note = rows[0];
 
     const job = await noteSummaryQueue.add("summarize-note", 
-      { noteId: Number(note.id, userId) },
+      { noteId: Number(note.id), userId },
       {
         attempts: 3,
         backoff: { type: "exponential", delay: 2000 }
@@ -115,7 +116,7 @@ router.post("/", protect, async (req, res) => {
 
     res.status(201).json(note);
 
-    embeddingsForNote({pool, userId, noteId:Number(note.id), content: note.content}).catch((e) => console.error("Embedding / chunking failed: ", e))
+    embeddingsForNote({pool, userId, noteId:Number(note.id), content: note.content}).then(() => computeRelatedNotes({ pool, userId, noteId: Number(note.id), limit: 10 })).catch((e) => console.error("Embedding / chunking failed: ", e))
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to create note." });

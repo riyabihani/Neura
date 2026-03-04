@@ -6,6 +6,7 @@ const statusStyles: Record<Note["status"], string> = {
   Completed: "bg-emerald-50 text-emerald-700 border-emerald-100",
   Processing: "bg-slate-50 text-slate-700 border-slate-100",
   Queued: "bg-slate-50 text-slate-700 border-slate-100",
+  Failed: "bg-red-50 text-red-700 border-red-100",
 };
 
 const NoteCard = ({ note }: { note: Note }) => {
@@ -31,15 +32,15 @@ const NoteCard = ({ note }: { note: Note }) => {
           </div>
         </div>
 
-        <h4 className="mt-2 text-sm font-semibold text-slate-900 line-clamp-1">{note.title}</h4>
+        <h4 className="mt-2 text-md font-semibold text-slate-900 line-clamp-1">{note.title}</h4>
         <p className="mt-2 text-sm text-slate-600 line-clamp-2">{note.summary}</p>
 
         {note.tags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {note.tags.slice(0, 3).map((t) => (
-              <span key={t} className="text-xs font-medium text-slate-600 bg-slate-50 border border-slate-200 rounded-full px-2.5 py-1">#{t}</span>
+              <span key={t} className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-full px-1.5 py-1">#{t}</span>
             ))}
-            {note.tags.length > 3 && <span className="text-xs text-slate-500">+{note.tags.length - 3}</span>}
+            {note.tags.length > 3 && <span className="text-xs text-slate-500 mt-1">+{note.tags.length - 3}</span>}
           </div>
         )}
 
